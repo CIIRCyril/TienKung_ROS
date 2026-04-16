@@ -6,8 +6,8 @@
 #include <vector>
 #include <stdint.h>
 
-#include <boost/function.hpp>
-#include <boost/thread/thread.hpp>
+#include <functional>
+#include <thread>
 
 #define MAX_LENGTH 128
 
@@ -172,7 +172,7 @@ namespace cereal
 		* 
 		*  \return True if successful false if a stream is already running.
 		*/
-	    bool startReadStream(boost::function<void(char*, int)> f);
+	    bool startReadStream(std::function<void(char*, int)> f);
 	    
 	    //! Start a stream of readLine(std::string*, int)
 		/*!
@@ -184,7 +184,7 @@ namespace cereal
 		* 
 		*  \return True if successful false if a stream is already running.
 		*/
-	    bool startReadLineStream(boost::function<void(std::string*)> f);
+	    bool startReadLineStream(std::function<void(std::string*)> f);
 	    
 	    //! Start a stream of readBetween()
 		/*!
@@ -198,7 +198,7 @@ namespace cereal
 		* 
 		*  \return True if successful false if a stream is already running.
 		*/
-	    bool startReadBetweenStream(boost::function<void(std::string*)> f, char start, char end);
+	    bool startReadBetweenStream(std::function<void(std::string*)> f, char start, char end);
 	    
 	    //! Stop streaming
 		void stopStream();
@@ -238,14 +238,14 @@ namespace cereal
 	    void readBetweenThread(char start, char end);
 		
 		//! Stream thread
-		boost::thread * stream_thread_;
+		std::thread * stream_thread_;
 		
 		//! Stream read callback boost function
-		boost::function<void(char*, int)> readCallback;
-		//! Stream readLine callback boost function
-		boost::function<void(std::string*)> readLineCallback;
-		//! Stream readBetween callback boost function
-		boost::function<void(std::string*)> readBetweenCallback;
+		std::function<void(char*, int)> readCallback;
+		//! Stream readLine callback std function
+		std::function<void(std::string*)> readLineCallback;
+		//! Stream readBetween callback std function
+		std::function<void(std::string*)> readBetweenCallback;
 		
 		//! Whether streaming is paused or not
 		bool stream_paused_;

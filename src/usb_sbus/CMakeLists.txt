@@ -1,33 +1,16 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.8)
 project(usb_sbus)
 
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-find_package(catkin REQUIRED
-    roscpp
-    sensor_msgs
-    std_msgs
-    roslib
-    rostime
-    )
+set(CMAKE_CXX_STANDARD 17)
 
-catkin_package(
-# INCLUDE_DIRS include
- CATKIN_DEPENDS roscpp std_msgs sensor_msgs
-# DEPENDS system_lib
-)
-
-include_directories(include  ${Boost_INCLUDE_DIRS} 
-  include
-	${catkin_INCLUDE_DIRS} 
-	${sdkapi_INCLUDE_DIRS}
-)
-
-add_definitions(-O3)
-
-# generate_messages(
-#  DEPENDENCIES
-#  std_msgs  # Or other packages containing msgs
-#)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 add_executable(${PROJECT_NAME}_node
   src/CerealPort.cpp
@@ -35,15 +18,18 @@ add_executable(${PROJECT_NAME}_node
   src/sbus_main.cpp
 )
 
-add_dependencies(${PROJECT_NAME}_node
-    ${${PROJECT_NAME}_EXPORTED_TARGETS}
-   ${catkin_EXPORTED_TARGETS})
+target_include_directories(${PROJECT_NAME}_node PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
-target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES} ${Boost_LIBRARIES} )
+ament_target_dependencies(${PROJECT_NAME}_node
+  rclcpp
+  sensor_msgs
+  std_msgs
+)
 
-## Mark executables and/or libraries for installation
 install(TARGETS ${PROJECT_NAME}_node
-   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
- )
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+ament_package()
