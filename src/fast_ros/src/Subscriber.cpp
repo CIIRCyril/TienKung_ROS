@@ -1,14 +1,14 @@
-#include "Subscriber.h"
+#include "fast_ros/Subscriber.h"
 
 namespace fast_ros {
 
 void Subscriber::shutdown() {
     if (type & ConnectionType::FAST_ROS) {
-        funcShutdown();    
+        funcShutdown();
     }
-    
+
     if (type & ConnectionType::NATIVE_ROS) {
-        subRos.shutdown();
+        subRos.reset();
     }
 }
 

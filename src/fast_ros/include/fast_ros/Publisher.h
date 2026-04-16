@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/publisher.h>
+#include <rclcpp/rclcpp.hpp>
 #include <any>
 #include "ConnectionType.h"
 
@@ -10,21 +10,24 @@ class Publisher {
 public:
     Publisher();
     template <typename M>
-    void publish(const boost::shared_ptr<M>& message) const
+    void publish(const std::shared_ptr<M>& message) const
     {
         if (type & ConnectionType::FAST_ROS) {
-            funcPubFast(message);      
+            funcPubFast(message);
         }
-        
+
         if (type & ConnectionType::NATIVE_ROS) {
-            pubRos.publish(message);
+            auto typed_pub = std::dynamic_pointer_cast<rclcpp::Publisher<M>>(pubRos);
+            if (typed_pub) {
+                typed_pub->publish(*message);
+            }
         }
     }
 private:
     friend class NodeHandle;
 
     ConnectionType type;
-    ros::Publisher pubRos;
+    std::shared_ptr<rclcpp::PublisherBase> pubRos;
     std::function<void(const std::any&)> funcPubFast;
 };
 

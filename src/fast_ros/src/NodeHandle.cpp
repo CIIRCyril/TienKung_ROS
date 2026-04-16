@@ -1,9 +1,8 @@
-#include "NodeHandle.h"
+#include "fast_ros/NodeHandle.h"
 
 namespace fast_ros {
 
-NodeHandle::NodeHandle(ros::NodeHandle& nh) : nh(nh) {
-
+NodeHandle::NodeHandle(rclcpp::Node::SharedPtr node) : node_(node) {
 }
 
 }

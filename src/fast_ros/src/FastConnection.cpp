@@ -1,5 +1,4 @@
-#include "FastConnection.h"
-#include <glog/logging.h>
+#include "fast_ros/FastConnection.h"
 
 namespace fast_ros {
 
