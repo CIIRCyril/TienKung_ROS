@@ -1,18 +1,18 @@
-#include <pluginlib/class_list_macros.h>
-#include <nodelet/nodelet.h>
-#include <ros/ros.h>
-#include <bodyctrl_msgs/MotorStatusMsg.h>
-#include <bodyctrl_msgs/MotorName.h>
-#include <bodyctrl_msgs/Imu.h>
-#include <bodyctrl_msgs/NodeState.h>
-#include <bodyctrl_msgs/TsHandStatusMsg.h>
-#include <bodyctrl_msgs/CmdMotorCtrl.h>
-#include <bodyctrl_msgs/CmdSetMotorPosition.h>
-#include <bodyctrl_msgs/CmdSetMotorSpeed.h>
-#include <bodyctrl_msgs/CmdSetMotorDistance.h>
-#include <bodyctrl_msgs/CmdSetTsHandPosition.h>
-#include <bodyctrl_msgs/PowerStatus.h>
-#include <bodyctrl_msgs/Sri.h>
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
+#include <yaml-cpp/yaml.h>
+#include <bodyctrl_msgs/msg/motor_status_msg.hpp>
+#include <bodyctrl_msgs/msg/motor_name.hpp>
+#include <bodyctrl_msgs/msg/imu.hpp>
+#include <bodyctrl_msgs/msg/node_state.hpp>
+#include <bodyctrl_msgs/msg/ts_hand_status_msg.hpp>
+#include <bodyctrl_msgs/msg/cmd_motor_ctrl.hpp>
+#include <bodyctrl_msgs/msg/cmd_set_motor_position.hpp>
+#include <bodyctrl_msgs/msg/cmd_set_motor_speed.hpp>
+#include <bodyctrl_msgs/msg/cmd_set_motor_distance.hpp>
+#include <bodyctrl_msgs/msg/cmd_set_ts_hand_position.hpp>
+#include <bodyctrl_msgs/msg/power_status.hpp>
+#include <bodyctrl_msgs/msg/sri.hpp>
 #include <fast_ros/fast_ros.h>
 
 #include <math.h> //fabs
@@ -49,82 +49,94 @@ enum {
 namespace body_control  // The usage of the namespace is a good practice but not mandatory
 {
 
-class MonitorPlugin : public nodelet::Nodelet
+class MonitorPlugin : public rclcpp::Node
 {
 public:
-  MonitorPlugin()
+  explicit MonitorPlugin(const rclcpp::NodeOptions & options)
+    : Node("Monitor", rclcpp::NodeOptions(options)
+        .allow_undeclared_parameters(true)
+        .automatically_declare_parameters_from_overrides(true))
   {
     INIT_GLOG("./glogs");
     motorNames = {
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_1, "MOTOR_LEG_LEFT_1"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_2, "MOTOR_LEG_LEFT_2"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_3, "MOTOR_LEG_LEFT_3"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_4, "MOTOR_LEG_LEFT_4"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_5, "MOTOR_LEG_LEFT_5"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_6, "MOTOR_LEG_LEFT_6"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_1, "MOTOR_LEG_RIGHT_1"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_2, "MOTOR_LEG_RIGHT_2"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_3, "MOTOR_LEG_RIGHT_3"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_4, "MOTOR_LEG_RIGHT_4"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_5, "MOTOR_LEG_RIGHT_5"},
-      {bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_6, "MOTOR_LEG_RIGHT_6"},
-      {bodyctrl_msgs::MotorName::MOTOR_ARM_LEFT_1, "MOTOR_ARM_LEFT_1"},
-      {bodyctrl_msgs::MotorName::MOTOR_ARM_LEFT_2, "MOTOR_ARM_LEFT_2"},
-      {bodyctrl_msgs::MotorName::MOTOR_ARM_LEFT_3, "MOTOR_ARM_LEFT_3"},
-      {bodyctrl_msgs::MotorName::MOTOR_ARM_RIGHT_1, "MOTOR_ARM_RIGHT_1"},
-      {bodyctrl_msgs::MotorName::MOTOR_ARM_RIGHT_2, "MOTOR_ARM_RIGHT_2"},
-      {bodyctrl_msgs::MotorName::MOTOR_ARM_RIGHT_3, "MOTOR_ARM_RIGHT_3"},
-      {bodyctrl_msgs::MotorName::MOTOR_HEAD_TOP, "MOTOR_HEAD_1"},
-      {bodyctrl_msgs::MotorName::MOTOR_HEAD_LEFT, "MOTOR_HEAD_2"},
-      {bodyctrl_msgs::MotorName::MOTOR_HEAD_RIGHT, "MOTOR_HEAD_3"},
-      {bodyctrl_msgs::MotorName::MOTOR_ARM_LEFT_4, "MOTOR_ARM_LEFT_4"},
-      {bodyctrl_msgs::MotorName::MOTOR_ARM_RIGHT_4, "MOTOR_ARM_RIGHT_4"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_1, "MOTOR_LEG_LEFT_1"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_2, "MOTOR_LEG_LEFT_2"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_3, "MOTOR_LEG_LEFT_3"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_4, "MOTOR_LEG_LEFT_4"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_5, "MOTOR_LEG_LEFT_5"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_6, "MOTOR_LEG_LEFT_6"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_1, "MOTOR_LEG_RIGHT_1"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_2, "MOTOR_LEG_RIGHT_2"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_3, "MOTOR_LEG_RIGHT_3"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_4, "MOTOR_LEG_RIGHT_4"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_5, "MOTOR_LEG_RIGHT_5"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_6, "MOTOR_LEG_RIGHT_6"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_ARM_LEFT_1, "MOTOR_ARM_LEFT_1"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_ARM_LEFT_2, "MOTOR_ARM_LEFT_2"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_ARM_LEFT_3, "MOTOR_ARM_LEFT_3"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_ARM_RIGHT_1, "MOTOR_ARM_RIGHT_1"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_ARM_RIGHT_2, "MOTOR_ARM_RIGHT_2"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_ARM_RIGHT_3, "MOTOR_ARM_RIGHT_3"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_HEAD_TOP, "MOTOR_HEAD_1"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_HEAD_LEFT, "MOTOR_HEAD_2"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_HEAD_RIGHT, "MOTOR_HEAD_3"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_ARM_LEFT_4, "MOTOR_ARM_LEFT_4"},
+      {bodyctrl_msgs::msg::MotorName::MOTOR_ARM_RIGHT_4, "MOTOR_ARM_RIGHT_4"},
     };
+    // Defer onInit
+    init_timer_ = this->create_wall_timer(
+      std::chrono::milliseconds(0),
+      [this]() {
+        init_timer_->cancel();
+        onInit();
+      });
   }
 
 private:
 
   void LoadMotors() {
-    auto& nh = getPrivateNodeHandle();
-
-    // get mapping for moters
-    XmlRpc::XmlRpcValue mappings_list;  
-    if (nh.getParam ("motors_mapping", mappings_list)) {  
-        LOG(INFO) << "Mappings loaded:";   
-        for (int i = 0; i < mappings_list.size(); ++i) {    
-            if (mappings_list[i].getType() == XmlRpc::XmlRpcValue::TypeArray) {  
-                XmlRpc::XmlRpcValue motor_mapping = mappings_list[i];  
-                if (motor_mapping.size() == 5 || motor_mapping.size() == 6) {
-                    namesAvailable.push_back(motor_mapping[0]);
-                } else {  
-                    LOG(ERROR) << ("Malformed motor mapping at index %d", i);  
-                }  
-            } else {  
-                LOG(ERROR) << ("Malformed motor mapping at index %d", i);  
-            }  
+    this->declare_parameter("motor_setting_file", std::string(""));
+    auto motor_file = this->get_parameter("motor_setting_file").as_string();
+    if (motor_file.empty()) {
+      LOG(WARNING) << "no motor setting file.";
+      return;
+    }
+    try {
+      YAML::Node yaml = YAML::LoadFile(motor_file);
+      if (yaml["motors_mapping"]) {
+        auto mappings_list = yaml["motors_mapping"];
+        LOG(INFO) << "Mappings loaded:";
+        for (size_t i = 0; i < mappings_list.size(); ++i) {
+          auto motor_mapping = mappings_list[i];
+          if (motor_mapping.size() == 5 || motor_mapping.size() == 6) {
+            namesAvailable.push_back(motor_mapping[0].as<int>());
+          } else {
+            LOG(ERROR) << "Malformed motor mapping at index " << i;
+          }
         }
-    } else {  
-        LOG(WARNING) << ("no motor setting.");  
+      }
+    } catch (const std::exception& e) {
+      LOG(ERROR) << "Failed to load motor YAML: " << e.what();
     }
   }
 
-  virtual void onInit()
+  void onInit()
   {
     LoadMotors();
-    auto& nh = getPrivateNodeHandle();
-    subNodeState = nh.subscribe("/BodyControl/node_state", 1000, &MonitorPlugin::OnNodeState, this);
+    subNodeState = this->create_subscription<bodyctrl_msgs::msg::NodeState>(
+      "/BodyControl/node_state", 1000,
+      std::bind(&MonitorPlugin::OnNodeState, this, std::placeholders::_1));
   }
 
-  void OnNodeState(const bodyctrl_msgs::NodeState::ConstPtr& msg)
+  void OnNodeState(const bodyctrl_msgs::msg::NodeState::ConstSharedPtr msg)
   {
     static bool started = false;
-    if (msg->state == bodyctrl_msgs::NodeState::NODE_STATE_RUNNING && !started) {
+    if (msg->state == bodyctrl_msgs::msg::NodeState::NODE_STATE_RUNNING && !started) {
       LOG(INFO) << "Start Monitor.";
       started = true;
       std::thread([this](){
         
-        auto& nh = getPrivateNodeHandle();
-        auto fnh = fast_ros::NodeHandle(nh);
+        auto fnh = fast_ros::NodeHandle(shared_from_this());
         // sub sensors
         sub[TYPE_MOTOR_STATUS] = fnh.subscribe("/BodyControl/motor_state", 1000, &MonitorPlugin::OnMotorStatus, this, fast_ros::NATIVE_ROS);
         sub[TYPE_IMU] = fnh.subscribe("/BodyControl/imu", 1000, &MonitorPlugin::OnImu, this, fast_ros::NATIVE_ROS);
@@ -144,22 +156,24 @@ private:
         sub[TYPE_SRI] = fnh.subscribe("/BodyControl/sri", 10, &MonitorPlugin::OnSriMsg, this, fast_ros::NATIVE_ROS);
 
         // powerStatus
-        subPowerStatus = nh.subscribe("/BodyControl/power_status", 10, &MonitorPlugin::OnPowerStatus, this);
+        subPowerStatus = this->create_subscription<bodyctrl_msgs::msg::PowerStatus>(
+          "/BodyControl/power_status", 10,
+          std::bind(&MonitorPlugin::OnPowerStatus, this, std::placeholders::_1));
 
-        ros::Rate rate(0.2);
-        // ros::Rate rate(1);
-        timeLast = ros::Time::now();
+        rclcpp::Rate rate(0.2);
+        // rclcpp::Rate rate(1);
+        timeLast = this->get_clock()->now();
 
         // reset record
         for (auto i = 0; i < MAX_NUM; ++i) {
           count[i] = 0;
-          lan[i].fromSec(0);
+          lanSec[i] = 0.0;
           motorMaxTemperature[i] = 0;
           motorMaxCurrent[i] = 0;
           motorTotalCurrent[i] = 0;
         }
 
-        while (ros::ok()) {
+        while (rclcpp::ok()) {
           
           rate.sleep();
 
@@ -167,13 +181,13 @@ private:
             mtx[i].lock();
           }
 
-          auto now = ros::Time::now();
+          auto now = this->get_clock()->now();
           auto dur = now - timeLast;
           double hz[MAX_NUM] = {0.0};
           double lanPs[MAX_NUM] = {0.0};
           for (auto i = 0; i < MAX_NUM; ++i) {
-            hz[i] = count[i] / dur.toSec();
-            lanPs[i] = (count[i] == 0 ? 0 : lan[i].toSec() / count[i]);
+            hz[i] = count[i] / dur.seconds();
+            lanPs[i] = (count[i] == 0 ? 0 : lanSec[i] / count[i]);
           }
 
           std::unordered_map<int, double> motorLoss;
@@ -231,7 +245,7 @@ private:
           // reset record
           for (auto i = 0; i < MAX_NUM; ++i) {
             count[i] = 0;
-            lan[i].fromSec(0);
+            lanSec[i] = 0.0;
             motorMaxTemperature[i] = 0;
             motorMaxCurrent[i] = 0;
             motorTotalCurrent[i] = 0;
@@ -251,11 +265,11 @@ private:
     }
   }
 
-  void OnMotorStatus(const bodyctrl_msgs::MotorStatusMsg::ConstPtr& msg)
+  void OnMotorStatus(const bodyctrl_msgs::msg::MotorStatusMsg::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_MOTOR_STATUS]);
     ++count[TYPE_MOTOR_STATUS];
-    lan[TYPE_MOTOR_STATUS] += ros::Time::now() - msg->header.stamp;
+    lanSec[TYPE_MOTOR_STATUS] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
 
     // loss
     for (auto& status : msg->status) {
@@ -266,10 +280,10 @@ private:
     }
   }
 
-  void OnImu(const bodyctrl_msgs::Imu::ConstPtr& msg)
+  void OnImu(const bodyctrl_msgs::msg::Imu::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_IMU]);
-    static bodyctrl_msgs::Imu::ConstPtr lastMsg = nullptr;
+    static bodyctrl_msgs::msg::Imu::ConstSharedPtr lastMsg = nullptr;
     if (lastMsg == nullptr) {
       ++count[TYPE_IMU];
       lastMsg = msg;
@@ -280,7 +294,7 @@ private:
       ++count[TYPE_IMU];
       lastMsg = msg; 
     }
-    lan[TYPE_IMU] += ros::Time::now() - msg->header.stamp;
+    lanSec[TYPE_IMU] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
 
     // // record
     // if (true) {
@@ -303,88 +317,82 @@ private:
     // }
   }
 
-  void OnImuHr(const bodyctrl_msgs::Imu::ConstPtr& msg)
+  void OnImuHr(const bodyctrl_msgs::msg::Imu::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_IMU_HR]);
     ++count[TYPE_IMU_HR];
-    lan[TYPE_IMU_HR] += ros::Time::now() - msg->header.stamp;
+    lanSec[TYPE_IMU_HR] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
   }
 
-  void OnTshandStatus(const bodyctrl_msgs::TsHandStatusMsg::ConstPtr& msg)
+  void OnTshandStatus(const bodyctrl_msgs::msg::TsHandStatusMsg::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_TSHAND_STATUS]);
     ++count[TYPE_TSHAND_STATUS];
-    lan[TYPE_TSHAND_STATUS] += ros::Time::now() - msg->header.stamp;
+    lanSec[TYPE_TSHAND_STATUS] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
   }
 
-  void OnCmdMotorCtrlMsg(const bodyctrl_msgs::CmdMotorCtrl::ConstPtr& msg)
+  void OnCmdMotorCtrlMsg(const bodyctrl_msgs::msg::CmdMotorCtrl::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_SET_MOTOR]);
     ++count[TYPE_SET_MOTOR];
-    ros::Time zero;
-    zero.fromSec(0);
+    rclcpp::Time zero(0, 0, RCL_ROS_TIME);
     if (msg->header.stamp != zero) {
-      lan[TYPE_SET_MOTOR] += ros::Time::now() - msg->header.stamp;
+      lanSec[TYPE_SET_MOTOR] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
     }
 
   }
 
-  void OnCmdSetMotorPosition(const bodyctrl_msgs::CmdSetMotorPosition::ConstPtr& msg)
+  void OnCmdSetMotorPosition(const bodyctrl_msgs::msg::CmdSetMotorPosition::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_SET_MOTOR]);
     ++count[TYPE_SET_MOTOR];
-    ros::Time zero;
-    zero.fromSec(0);
+    rclcpp::Time zero(0, 0, RCL_ROS_TIME);
     if (msg->header.stamp != zero) {
-      lan[TYPE_SET_MOTOR] += ros::Time::now() - msg->header.stamp;
+      lanSec[TYPE_SET_MOTOR] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
     }
   }
 
-  void OnCmdSetMotorDistance(const bodyctrl_msgs::CmdSetMotorDistance::ConstPtr& msg)
+  void OnCmdSetMotorDistance(const bodyctrl_msgs::msg::CmdSetMotorDistance::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_SET_MOTOR]);
     ++count[TYPE_SET_MOTOR];
-    ros::Time zero;
-    zero.fromSec(0);
+    rclcpp::Time zero(0, 0, RCL_ROS_TIME);
     if (msg->header.stamp != zero) {
-      lan[TYPE_SET_MOTOR] += ros::Time::now() - msg->header.stamp;
+      lanSec[TYPE_SET_MOTOR] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
     }
   }
 
-  void OnCmdSetMotorSpeed(const bodyctrl_msgs::CmdSetMotorSpeed::ConstPtr& msg)
+  void OnCmdSetMotorSpeed(const bodyctrl_msgs::msg::CmdSetMotorSpeed::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_SET_MOTOR]);
     ++count[TYPE_SET_MOTOR];
-    ros::Time zero;
-    zero.fromSec(0);
+    rclcpp::Time zero(0, 0, RCL_ROS_TIME);
     if (msg->header.stamp != zero) {
-      lan[TYPE_SET_MOTOR] += ros::Time::now() - msg->header.stamp;
+      lanSec[TYPE_SET_MOTOR] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
     }
   }
 
-  void OnCmdSetTshandPosition(const bodyctrl_msgs::CmdSetTsHandPosition::ConstPtr& msg)
+  void OnCmdSetTshandPosition(const bodyctrl_msgs::msg::CmdSetTsHandPosition::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_SET_TSHAND_POSITION]);
     ++count[TYPE_SET_TSHAND_POSITION];
-    ros::Time zero;
-    zero.fromSec(0);
+    rclcpp::Time zero(0, 0, RCL_ROS_TIME);
     if (msg->header.stamp != zero) {
-      lan[TYPE_SET_TSHAND_POSITION] += ros::Time::now() - msg->header.stamp;
+      lanSec[TYPE_SET_TSHAND_POSITION] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
     }
   }
 
-  void OnSriMsg(const bodyctrl_msgs::Sri::ConstPtr& msg)
+  void OnSriMsg(const bodyctrl_msgs::msg::Sri::ConstSharedPtr msg)
   {
     std::lock_guard<std::mutex> guard(mtx[TYPE_SRI]);
     ++count[TYPE_SRI];
-    ros::Time zero;
-    zero.fromSec(0);
+    rclcpp::Time zero(0, 0, RCL_ROS_TIME);
     if (msg->header.stamp != zero) {
-      lan[TYPE_SRI] += ros::Time::now() - msg->header.stamp;
+      lanSec[TYPE_SRI] += (rclcpp::Clock().now() - msg->header.stamp).seconds();
     }
   }
 
-  void OnPowerStatus(const bodyctrl_msgs::PowerStatus::ConstPtr& msg) {
+  void OnPowerStatus(const bodyctrl_msgs::msg::PowerStatus::ConstSharedPtr msg) {
     // GET_BATTERY_CUMULATIVE_VOL
     // if (msg->data[7] > 60) {
     //   LOG_F2(WARNING) << "battery cumulative voltage too high! value = " << msg->data[7];
@@ -406,22 +414,24 @@ private:
     }
   }
 
-  ros::Subscriber subNodeState;
+  rclcpp::Subscription<bodyctrl_msgs::msg::NodeState>::SharedPtr subNodeState;
   fast_ros::Subscriber sub[MAX_NUM];
-  ros::Subscriber subPowerStatus;
+  rclcpp::Subscription<bodyctrl_msgs::msg::PowerStatus>::SharedPtr subPowerStatus;
   std::mutex mtx[MAX_NUM];
-  ros::Duration lan[MAX_NUM];
+  double lanSec[MAX_NUM] = {0.0};
   long count[MAX_NUM] = {0};
   long countAnyMotor[60] = {0};
 
-  ros::Time timeLast;
+  rclcpp::Time timeLast{0, 0, RCL_ROS_TIME};
   
   std::unordered_map<int, std::string> motorNames;
   std::vector<int> namesAvailable;
   std::unordered_map<int, double> motorMaxTemperature;
   std::unordered_map<int, double> motorMaxCurrent;
   std::unordered_map<int, double> motorTotalCurrent;
+
+  rclcpp::TimerBase::SharedPtr init_timer_;
 };
 }
 
-PLUGINLIB_EXPORT_CLASS(body_control::MonitorPlugin, nodelet::Nodelet);
+RCLCPP_COMPONENTS_REGISTER_NODE(body_control::MonitorPlugin)
