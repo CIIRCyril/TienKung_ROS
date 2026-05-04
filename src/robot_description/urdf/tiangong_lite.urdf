@@ -34,7 +34,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/pelvis.STL" />
+          filename="package://robot_description/meshes/pelvis.STL" />
       </geometry>
       <material
         name="">
@@ -48,7 +48,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/pelvis.STL" />
+          filename="package://robot_description/meshes/pelvis.STL" />
       </geometry>
     </collision>
   </link>
@@ -91,7 +91,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Roll_l_link.STL" />
+          filename="package://robot_description/meshes/hip_Roll_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -105,7 +105,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Roll_l_link.STL" />
+          filename="package://robot_description/meshes/hip_Roll_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -149,7 +149,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Yaw_l_link.STL" />
+          filename="package://robot_description/meshes/hip_Yaw_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -163,7 +163,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Yaw_l_link.STL" />
+          filename="package://robot_description/meshes/hip_Yaw_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -207,7 +207,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Pitch_l_link.STL" />
+          filename="package://robot_description/meshes/hip_Pitch_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -221,7 +221,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Pitch_l_link.STL" />
+          filename="package://robot_description/meshes/hip_Pitch_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -265,7 +265,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/knee_Pitch_l_link.STL" />
+          filename="package://robot_description/meshes/knee_Pitch_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -279,7 +279,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/knee_Pitch_l_link.STL" />
+          filename="package://robot_description/meshes/knee_Pitch_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -323,7 +323,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/ankle_Pitch_l_link.STL" />
+          filename="package://robot_description/meshes/ankle_Pitch_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -337,7 +337,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/ankle_Pitch_l_link.STL" />
+          filename="package://robot_description/meshes/ankle_Pitch_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -381,7 +381,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/ankle_Roll_l_link.STL" />
+          filename="package://robot_description/meshes/ankle_Roll_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -395,7 +395,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/ankle_Roll_l_link.STL" />
+          filename="package://robot_description/meshes/ankle_Roll_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -439,7 +439,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Roll_r_link.STL" />
+          filename="package://robot_description/meshes/hip_Roll_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -453,7 +453,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Roll_r_link.STL" />
+          filename="package://robot_description/meshes/hip_Roll_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -497,7 +497,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Yaw_r_link.STL" />
+          filename="package://robot_description/meshes/hip_Yaw_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -511,7 +511,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Yaw_r_link.STL" />
+          filename="package://robot_description/meshes/hip_Yaw_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -555,7 +555,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Pitch_r_link.STL" />
+          filename="package://robot_description/meshes/hip_Pitch_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -569,7 +569,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/hip_Pitch_r_link.STL" />
+          filename="package://robot_description/meshes/hip_Pitch_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -613,7 +613,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/knee_Pitch_r_link.STL" />
+          filename="package://robot_description/meshes/knee_Pitch_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -627,7 +627,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/knee_Pitch_r_link.STL" />
+          filename="package://robot_description/meshes/knee_Pitch_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -671,7 +671,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/ankle_Pitch_r_link.STL" />
+          filename="package://robot_description/meshes/ankle_Pitch_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -685,7 +685,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/ankle_Pitch_r_link.STL" />
+          filename="package://robot_description/meshes/ankle_Pitch_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -729,7 +729,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/ankle_Roll_r_link.STL" />
+          filename="package://robot_description/meshes/ankle_Roll_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -743,7 +743,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/ankle_Roll_r_link.STL" />
+          filename="package://robot_description/meshes/ankle_Roll_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -787,7 +787,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/body_yaw_link.STL" />
+          filename="package://robot_description/meshes/body_yaw_link.STL" />
       </geometry>
       <material
         name="">
@@ -801,7 +801,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/body_yaw_link.STL" />
+          filename="package://robot_description/meshes/body_yaw_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -845,7 +845,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/head_fixed_link.STL" />
+          filename="package://robot_description/meshes/head_fixed_link.STL" />
       </geometry>
       <material
         name="">
@@ -859,7 +859,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/head_fixed_link.STL" />
+          filename="package://robot_description/meshes/head_fixed_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -898,7 +898,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/arm_fixed_l_link.STL" />
+          filename="package://robot_description/meshes/arm_fixed_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -912,7 +912,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/arm_fixed_l_link.STL" />
+          filename="package://robot_description/meshes/arm_fixed_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -951,7 +951,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/shoulder_pitch_l_link.STL" />
+          filename="package://robot_description/meshes/shoulder_pitch_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -965,7 +965,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/shoulder_pitch_l_link.STL" />
+          filename="package://robot_description/meshes/shoulder_pitch_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1009,7 +1009,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/shoulder_roll_l_link.STL" />
+          filename="package://robot_description/meshes/shoulder_roll_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -1023,7 +1023,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/shoulder_roll_l_link.STL" />
+          filename="package://robot_description/meshes/shoulder_roll_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1067,7 +1067,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/arm_yaw_l_link.STL" />
+          filename="package://robot_description/meshes/arm_yaw_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -1081,7 +1081,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/arm_yaw_l_link.STL" />
+          filename="package://robot_description/meshes/arm_yaw_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1125,7 +1125,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/elbow_pitch_l_link.STL" />
+          filename="package://robot_description/meshes/elbow_pitch_l_link.STL" />
       </geometry>
       <material
         name="">
@@ -1139,7 +1139,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/elbow_pitch_l_link.STL" />
+          filename="package://robot_description/meshes/elbow_pitch_l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1183,7 +1183,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/arm_fixed_r_link.STL" />
+          filename="package://robot_description/meshes/arm_fixed_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -1197,7 +1197,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/arm_fixed_r_link.STL" />
+          filename="package://robot_description/meshes/arm_fixed_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1236,7 +1236,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/shoulder_pitch_r_link.STL" />
+          filename="package://robot_description/meshes/shoulder_pitch_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -1250,7 +1250,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/shoulder_pitch_r_link.STL" />
+          filename="package://robot_description/meshes/shoulder_pitch_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1294,7 +1294,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/shoulder_roll_r_link.STL" />
+          filename="package://robot_description/meshes/shoulder_roll_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -1308,7 +1308,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/shoulder_roll_r_link.STL" />
+          filename="package://robot_description/meshes/shoulder_roll_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1352,7 +1352,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/arm_yaw_r_link.STL" />
+          filename="package://robot_description/meshes/arm_yaw_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -1366,7 +1366,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/arm_yaw_r_link.STL" />
+          filename="package://robot_description/meshes/arm_yaw_r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -1410,7 +1410,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/elbow_pitch_r_link.STL" />
+          filename="package://robot_description/meshes/elbow_pitch_r_link.STL" />
       </geometry>
       <material
         name="">
@@ -1424,7 +1424,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tiangong_lite-URDF/meshes/elbow_pitch_r_link.STL" />
+          filename="package://robot_description/meshes/elbow_pitch_r_link.STL" />
       </geometry>
     </collision>
   </link>
