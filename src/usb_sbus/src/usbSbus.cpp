@@ -5,11 +5,11 @@ bool usbSbus::init(const char *cDevName)
     try 
     {
         m_serialHandle.open(cDevName, SBUS_BAUD_RATE);
-        ROS_INFO("usb_sbus open device : %s.",cDevName);
+        RCLCPP_INFO(rclcpp::get_logger("usb_sbus"), "usb_sbus open device : %s.",cDevName);
     } 
     catch(const std::exception& e) 
     {
-        ROS_ERROR("m_serialHandle open %s is error! : %s \n" ,cDevName,e.what());
+        RCLCPP_ERROR(rclcpp::get_logger("usb_sbus"), "m_serialHandle open %s is error! : %s \n" ,cDevName,e.what());
         return false;
     }
     return true;
@@ -58,7 +58,7 @@ int usbSbus::sbus_read(uint16_t* channels_out)
     if(!m_serialHandle.portOpen())
     {
         // 设备未打开
-        ROS_ERROR("serial port not open !");
+        RCLCPP_ERROR(rclcpp::get_logger("usb_sbus"), "serial port not open !");
         return -1;
     }
 
@@ -132,7 +132,7 @@ int usbSbus::sbus_write(uint16_t* channels_in)
     if(!m_serialHandle.portOpen())
     {
         // 设备未打开
-        ROS_ERROR("serial port not open !");
+        RCLCPP_ERROR(rclcpp::get_logger("usb_sbus"), "serial port not open !");
         return -1;
     }
     

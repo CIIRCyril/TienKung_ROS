@@ -1,14 +1,13 @@
-#include <pluginlib/class_list_macros.h>
-#include <nodelet/nodelet.h>
-#include <ros/ros.h>
-#include <std_msgs/Float64.h>
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
+#include <std_msgs/msg/float64.hpp>
 #include <stdio.h>
 #include <glog/logging.h>
-#include <bodyctrl_msgs/CmdSetMotorSpeed.h>
-#include <bodyctrl_msgs/MotorName.h>
-#include <bodyctrl_msgs/NodeState.h>
-#include <bodyctrl_msgs/MotorStatusMsg.h>
-#include <bodyctrl_msgs/CmdSetMotorPosition.h>
+#include <bodyctrl_msgs/msg/cmd_set_motor_speed.hpp>
+#include <bodyctrl_msgs/msg/motor_name.hpp>
+#include <bodyctrl_msgs/msg/node_state.hpp>
+#include <bodyctrl_msgs/msg/motor_status_msg.hpp>
+#include <bodyctrl_msgs/msg/cmd_set_motor_position.hpp>
 
 #include <math.h> //fabs
 
@@ -23,30 +22,35 @@
 namespace body_control  // The usage of the namespace is a good practice but not mandatory
 {
 
-class TestPlugin : public nodelet::Nodelet
+class TestPlugin : public rclcpp::Node
 {
 public:
-  TestPlugin()
-  {}
-
-private:
-  virtual void onInit()
+  explicit TestPlugin(const rclcpp::NodeOptions & options)
+    : Node("TestPlugin", options)
   {
-    auto& nh = getPrivateNodeHandle();
-
-    pubSetMotorSpeed = nh.advertise<bodyctrl_msgs::CmdSetMotorSpeed>("/BodyControl/set_motor_speed", 1000);
-    pubSetHeadPos = nh.advertise<bodyctrl_msgs::CmdSetMotorPosition>("/BodyControl/ey/set_pos", 1000);
-    pubSetWaistPos = nh.advertise<bodyctrl_msgs::CmdSetMotorPosition>("/BodyControl/ze/set_pos", 1000);
-
-    subNodeState = nh.subscribe("/BodyControl/node_state", 1000, &TestPlugin::OnNodeState, this);
-    subLegStatus = nh.subscribe("/BodyControl/motor_state", 1000, &TestPlugin::OnLegStatus, this);
-    subHeadStatus = nh.subscribe("/BodyControl/ey/status", 1000, &TestPlugin::OnHeadStatus, this);
-    subWaistStatus = nh.subscribe("/BodyControl/ze/status", 1000, &TestPlugin::OnWaistStatus, this);
+    onInit();
   }
 
-  void OnNodeState(const bodyctrl_msgs::NodeState::ConstPtr& msg)
+private:
+  void onInit()
   {
-    if (msg->state == bodyctrl_msgs::NodeState::NODE_STATE_RUNNING) {
+    pubSetMotorSpeed = this->create_publisher<bodyctrl_msgs::msg::CmdSetMotorSpeed>("/BodyControl/set_motor_speed", 1000);
+    pubSetHeadPos = this->create_publisher<bodyctrl_msgs::msg::CmdSetMotorPosition>("/BodyControl/ey/set_pos", 1000);
+    pubSetWaistPos = this->create_publisher<bodyctrl_msgs::msg::CmdSetMotorPosition>("/BodyControl/ze/set_pos", 1000);
+
+    subNodeState = this->create_subscription<bodyctrl_msgs::msg::NodeState>(
+      "/BodyControl/node_state", 1000, std::bind(&TestPlugin::OnNodeState, this, std::placeholders::_1));
+    subLegStatus = this->create_subscription<bodyctrl_msgs::msg::MotorStatusMsg>(
+      "/BodyControl/motor_state", 1000, std::bind(&TestPlugin::OnLegStatus, this, std::placeholders::_1));
+    subHeadStatus = this->create_subscription<bodyctrl_msgs::msg::MotorStatusMsg>(
+      "/BodyControl/ey/status", 1000, std::bind(&TestPlugin::OnHeadStatus, this, std::placeholders::_1));
+    subWaistStatus = this->create_subscription<bodyctrl_msgs::msg::MotorStatusMsg>(
+      "/BodyControl/ze/status", 1000, std::bind(&TestPlugin::OnWaistStatus, this, std::placeholders::_1));
+  }
+
+  void OnNodeState(bodyctrl_msgs::msg::NodeState::ConstSharedPtr msg)
+  {
+    if (msg->state == bodyctrl_msgs::msg::NodeState::NODE_STATE_RUNNING) {
       std::thread([this]() {
         bool ready = true;
         for (auto i = 0; i < 12; ++i) {
@@ -85,7 +89,7 @@ private:
     }
   }
 
-  void OnLegStatus(const bodyctrl_msgs::MotorStatusMsg::ConstPtr& msg)
+  void OnLegStatus(bodyctrl_msgs::msg::MotorStatusMsg::ConstSharedPtr msg)
   {
     for (auto& data : msg->status) {
       auto i = data.name - 1;
@@ -96,10 +100,10 @@ private:
     }
   }
 
-  void OnHeadStatus(const bodyctrl_msgs::MotorStatusMsg::ConstPtr& msg)
+  void OnHeadStatus(bodyctrl_msgs::msg::MotorStatusMsg::ConstSharedPtr msg)
   {
     for (auto& data : msg->status) {
-      auto i = data.name - bodyctrl_msgs::MotorName::MOTOR_HEAD_TOP;
+      auto i = data.name - bodyctrl_msgs::msg::MotorName::MOTOR_HEAD_TOP;
       if (!inited_head[i]) {
         start_pos_head[i] = data.pos;
         inited_head[i] = true;
@@ -107,7 +111,7 @@ private:
     }
   }
 
-  void OnWaistStatus(const bodyctrl_msgs::MotorStatusMsg::ConstPtr& msg)
+  void OnWaistStatus(bodyctrl_msgs::msg::MotorStatusMsg::ConstSharedPtr msg)
   {
     for (auto& data : msg->status) {
       if (!inited_waist) {
@@ -119,265 +123,265 @@ private:
   }
 
   void TestLegs() {
-      ros::Rate rate(400);
+      rclcpp::Rate rate(400);
       long count = 0;
       double spd_base = 1.5;
       double spd;
       double cur = 2.0; // A
       SinTime st;
       st.init(spd_base);
-      while (ros::ok()) {
+      while (rclcpp::ok()) {
         // 正弦变速
         spd = st.update(spd_base);
 
-        bodyctrl_msgs::CmdSetMotorSpeed msg;
+        bodyctrl_msgs::msg::CmdSetMotorSpeed msg;
 
         // LEG-LEFT
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_1;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_1;
           cmd.spd = spd * 0.5;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_2;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_2;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_3;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_3;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_4;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_4;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_5;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_5;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_6;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_6;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         
         // LEG-RIGHT
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_1;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_1;
           cmd.spd = -spd * 0.5;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_2;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_2;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_3;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_3;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_4;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_4;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_5;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_5;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_6;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_6;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         
-        pubSetMotorSpeed.publish(msg);
+        pubSetMotorSpeed->publish(msg);
         rate.sleep();
       }
   }
 
   // for 13715 motor
   void TestLegs2() {
-      ros::Rate rate(400);
+      rclcpp::Rate rate(400);
       long count = 0;
       double spd_base = 1.5;
       double spd;
       double cur = 2.0; // A
       SinTime st;
       st.init(spd_base);
-      while (ros::ok()) {
+      while (rclcpp::ok()) {
         // 正弦变速
         spd = st.update(spd_base);
 
-        bodyctrl_msgs::CmdSetMotorSpeed msg;
+        bodyctrl_msgs::msg::CmdSetMotorSpeed msg;
 
         // LEG-LEFT
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_1;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_1;
           cmd.spd = spd * 0.5;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_2;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_2;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_3;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_3;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_4;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_4;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_5;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_5;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_LEFT_6;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_LEFT_6;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         
         // LEG-RIGHT
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_1;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_1;
           cmd.spd = -spd * 0.5;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_2;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_2;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_3;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_3;
           cmd.spd = -spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_4;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_4;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_5;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_5;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         {
-          bodyctrl_msgs::SetMotorSpeed cmd;
-          cmd.name = bodyctrl_msgs::MotorName::MOTOR_LEG_RIGHT_6;
+          bodyctrl_msgs::msg::SetMotorSpeed cmd;
+          cmd.name = bodyctrl_msgs::msg::MotorName::MOTOR_LEG_RIGHT_6;
           cmd.spd = spd;
           cmd.cur = cur;
-          msg.header.stamp = ros::Time::now();
+          msg.header.stamp = rclcpp::Clock().now();
           msg.cmds.push_back(cmd);
         }
         
-        pubSetMotorSpeed.publish(msg);
+        pubSetMotorSpeed->publish(msg);
         rate.sleep();
       }
   }
 
   void TestHead() {
-    ros::Rate rate(0.1);
+    rclcpp::Rate rate(0.1);
     float pos = 0.15;
     float spd = 0.5;
-    while (ros::ok()) {
-      bodyctrl_msgs::CmdSetMotorPosition msg;
+    while (rclcpp::ok()) {
+      bodyctrl_msgs::msg::CmdSetMotorPosition msg;
 
-      bodyctrl_msgs::SetMotorPosition cmd1;
-      cmd1.name = bodyctrl_msgs::MotorName::MOTOR_HEAD_TOP;
+      bodyctrl_msgs::msg::SetMotorPosition cmd1;
+      cmd1.name = bodyctrl_msgs::msg::MotorName::MOTOR_HEAD_TOP;
       cmd1.pos = start_pos_head[0] + pos;
       cmd1.spd = spd;
       cmd1.cur = 1.0;
 
-      bodyctrl_msgs::SetMotorPosition cmd2;
-      cmd2.name = bodyctrl_msgs::MotorName::MOTOR_HEAD_LEFT;
+      bodyctrl_msgs::msg::SetMotorPosition cmd2;
+      cmd2.name = bodyctrl_msgs::msg::MotorName::MOTOR_HEAD_LEFT;
       cmd2.pos = start_pos_head[1] + pos;
       cmd2.spd = spd;
       cmd2.cur = 1.0;
 
-      bodyctrl_msgs::SetMotorPosition cmd3;
-      cmd3.name = bodyctrl_msgs::MotorName::MOTOR_HEAD_RIGHT;
+      bodyctrl_msgs::msg::SetMotorPosition cmd3;
+      cmd3.name = bodyctrl_msgs::msg::MotorName::MOTOR_HEAD_RIGHT;
       cmd3.pos = start_pos_head[2] + pos;
       cmd3.spd = spd;
       cmd3.cur = 1.0;
@@ -386,7 +390,7 @@ private:
       msg.cmds.push_back(cmd2);
       msg.cmds.push_back(cmd3);
 
-      pubSetHeadPos.publish(msg);
+      pubSetHeadPos->publish(msg);
       rate.sleep();
 
       pos = -pos;
@@ -394,21 +398,21 @@ private:
   }
 
   void TestWaist() {
-    ros::Rate rate(0.2);
+    rclcpp::Rate rate(0.2);
     float pos = 0.3;
     float spd = 0.3;
-    while (ros::ok()) {
-      bodyctrl_msgs::CmdSetMotorPosition msg;
+    while (rclcpp::ok()) {
+      bodyctrl_msgs::msg::CmdSetMotorPosition msg;
 
-      bodyctrl_msgs::SetMotorPosition cmd1;
-      cmd1.name = bodyctrl_msgs::MotorName::MOTOR_WAIST;
+      bodyctrl_msgs::msg::SetMotorPosition cmd1;
+      cmd1.name = bodyctrl_msgs::msg::MotorName::MOTOR_WAIST;
       cmd1.pos = start_pos_waist + pos;
       cmd1.spd = spd;
       cmd1.cur = 1.0;
 
       msg.cmds.push_back(cmd1);
 
-      pubSetWaistPos.publish(msg);
+      pubSetWaistPos->publish(msg);
       rate.sleep();
 
       pos = -pos;
@@ -424,9 +428,15 @@ private:
 
   bool module_started[3] = {0};
 
-  ros::Subscriber subLegStatus, subNodeState, subHeadStatus, subWaistStatus;
-  ros::Publisher pubSetMotorSpeed, pubSetHeadPos, pubSetWaistPos;
+  rclcpp::Subscription<bodyctrl_msgs::msg::NodeState>::SharedPtr subNodeState;
+  rclcpp::Subscription<bodyctrl_msgs::msg::MotorStatusMsg>::SharedPtr subLegStatus;
+  rclcpp::Subscription<bodyctrl_msgs::msg::MotorStatusMsg>::SharedPtr subHeadStatus;
+  rclcpp::Subscription<bodyctrl_msgs::msg::MotorStatusMsg>::SharedPtr subWaistStatus;
+
+  rclcpp::Publisher<bodyctrl_msgs::msg::CmdSetMotorSpeed>::SharedPtr pubSetMotorSpeed;
+  rclcpp::Publisher<bodyctrl_msgs::msg::CmdSetMotorPosition>::SharedPtr pubSetHeadPos;
+  rclcpp::Publisher<bodyctrl_msgs::msg::CmdSetMotorPosition>::SharedPtr pubSetWaistPos;
 };
 }
 
-PLUGINLIB_EXPORT_CLASS(body_control::TestPlugin, nodelet::Nodelet);
+RCLCPP_COMPONENTS_REGISTER_NODE(body_control::TestPlugin)

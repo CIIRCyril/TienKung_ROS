@@ -1,4 +1,4 @@
-#include "Publisher.h"
+#include "fast_ros/Publisher.h"
 
 namespace fast_ros {
 

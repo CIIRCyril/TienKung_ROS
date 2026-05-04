@@ -401,7 +401,7 @@ int cereal::CerealPort::flush()
 	  return retval;
 }
 
-bool cereal::CerealPort::startReadStream(boost::function<void(char*, int)> f)
+bool cereal::CerealPort::startReadStream(std::function<void(char*, int)> f)
 {
 	if(stream_thread_ != NULL) return false;
 
@@ -410,7 +410,7 @@ bool cereal::CerealPort::startReadStream(boost::function<void(char*, int)> f)
 	
 	readCallback = f;
 	
-	stream_thread_ = new boost::thread(boost::bind(&cereal::CerealPort::readThread, this));
+	stream_thread_ = new std::thread(&cereal::CerealPort::readThread, this);
 	return true;
 }
 
@@ -442,7 +442,7 @@ void cereal::CerealPort::readThread()
 	}
 }
 
-bool cereal::CerealPort::startReadLineStream(boost::function<void(std::string*)> f)
+bool cereal::CerealPort::startReadLineStream(std::function<void(std::string*)> f)
 {
 	if(stream_thread_ != NULL) return false;
 
@@ -451,7 +451,7 @@ bool cereal::CerealPort::startReadLineStream(boost::function<void(std::string*)>
 	
 	readLineCallback = f;
 	
-	stream_thread_ = new boost::thread(boost::bind(&cereal::CerealPort::readLineThread, this));
+	stream_thread_ = new std::thread(&cereal::CerealPort::readLineThread, this);
 	return true;
 }
 
@@ -476,7 +476,7 @@ void cereal::CerealPort::readLineThread()
 	}
 }
 
-bool cereal::CerealPort::startReadBetweenStream(boost::function<void(std::string*)> f, char start, char end)
+bool cereal::CerealPort::startReadBetweenStream(std::function<void(std::string*)> f, char start, char end)
 {
 	if(stream_thread_ != NULL) return false;
 
@@ -485,7 +485,7 @@ bool cereal::CerealPort::startReadBetweenStream(boost::function<void(std::string
 	
 	readBetweenCallback = f;
 	
-	stream_thread_ = new boost::thread(boost::bind(&cereal::CerealPort::readBetweenThread, this, start, end));
+	stream_thread_ = new std::thread(&cereal::CerealPort::readBetweenThread, this, start, end);
 	return true;
 }
 

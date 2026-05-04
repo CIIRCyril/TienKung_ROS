@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ros/subscriber.h>
+#include <rclcpp/rclcpp.hpp>
 #include "ConnectionType.h"
 
 namespace fast_ros {
@@ -15,7 +15,7 @@ private:
 
     ConnectionType type;
     std::function<void()> funcShutdown;
-    ros::Subscriber subRos;
+    rclcpp::SubscriptionBase::SharedPtr subRos;
 };
 
 }
